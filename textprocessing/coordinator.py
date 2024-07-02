@@ -4,11 +4,18 @@ import requests
 import itertools
 
 app = FastAPI()
+NER_URL_1 = "https://56ea-203-190-154-106.ngrok-free.app/ner"
+NER_URL_2 = "https://4369-34-139-136-4.ngrok-free.app/ner"
+Ner_list = []
+Ner_list.append(NER_URL_1)
+Ner_list.append(NER_URL_2)
+a = 0
+def get_ner_url():
+    global a 
+    a = a + 1
+    a = a % len(Ner_list)
+    return Ner_list[a]
 
-NER_URLS = itertools.cycle([
-    "https://56ea-203-190-154-106.ngrok-free.app/ner",
-    "https://4369-34-139-136-4.ngrok-free.app/ner"
-])
 LDA_URL = "https://52db-203-190-154-106.ngrok-free.app/lda"
 
 @app.get("/", response_class=HTMLResponse)
@@ -38,7 +45,7 @@ async def get_form():
 async def analyze(text: str = Form(...), analysis_type: str = Form(...)):
     try:
         if analysis_type == "ner":
-            ner_url = next(NER_URLS)
+            ner_url = get_ner_url()
             response = requests.post(ner_url, data={'text': text})
         elif analysis_type == "lda":
             response = requests.post(LDA_URL, json={'text': text})
